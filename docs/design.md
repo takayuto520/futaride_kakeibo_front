@@ -136,6 +136,9 @@ interface Transaction {
 | PUT      | /api/transactions/:id | 取引更新         |
 | DELETE   | /api/transactions/:id | 取引削除         |
 | GET      | /api/categories       | カテゴリ一覧取得 |
+| POST     | /api/categories       | カテゴリ新規作成 |
+| PUT      | /api/categories/:id   | カテゴリ更新     |
+| DELETE   | /api/categories/:id   | カテゴリ削除     |
 
 ### 5.2 レスポンス例
 
@@ -158,6 +161,51 @@ interface Transaction {
   "total": 1,
   "page": 1,
   "limit": 20
+}
+```
+
+#### GET /api/categories
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "食費",
+      "type": "expense",
+      "color": "#EF4444"
+    },
+    {
+      "id": 2,
+      "name": "日用品",
+      "type": "expense",
+      "color": "#10B981"
+    },
+    {
+      "id": 3,
+      "name": "交通費",
+      "type": "expense",
+      "color": "#3B82F6"
+    },
+    {
+      "id": 4,
+      "name": "住居費",
+      "type": "expense",
+      "color": "#8B5CF6"
+    },
+    {
+      "id": 5,
+      "name": "公共料金",
+      "type": "expense",
+      "color": "#F59E0B"
+    },
+    {
+      "id": 6,
+      "name": "交際費",
+      "type": "expense",
+      "color": "#EC4899"
+    }
+  ]
 }
 ```
 
