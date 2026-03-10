@@ -61,7 +61,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
-import type { Transaction } from "@/types/Transaction.type";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { formatDate } from "@/utils/dateUtils";

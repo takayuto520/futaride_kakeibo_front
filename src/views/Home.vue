@@ -1,37 +1,138 @@
 <template>
-  <div class="home">
-    <h1>ホーム</h1>
-    <p>ようこそ！ 今日の日付: {{ currentDate }}</p>
-    <UserCard
-      v-for="user in users"
-      :key="user.id"
-      :user="user"
-      @update-user="handleUpdateUser"
-    />
+  <div class="home p-6 max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">ホーム</h1>
+
+    <!-- 月次収支サマリー -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">月次収支サマリー</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="text-center">
+          <p class="text-2xl font-bold text-green-600">
+            ¥{{ totalIncome.toLocaleString() }}
+          </p>
+          <p class="text-gray-600">収入</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-red-600">
+            ¥{{ totalExpense.toLocaleString() }}
+          </p>
+          <p class="text-gray-600">支出</p>
+        </div>
+        <div class="text-center">
+          <p
+            class="text-2xl font-bold {{ balance >= 0 ? 'text-green-600' : 'text-red-600' }}"
+          >
+            ¥{{ balance.toLocaleString() }}
+          </p>
+          <p class="text-gray-600">収支</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- カレンダー表示 -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">カレンダー</h2>
+      <div class="grid grid-cols-7 gap-2 mb-4">
+        <div
+          v-for="day in daysOfWeek"
+          :key="day"
+          class="text-center font-semibold text-gray-600"
+        >
+          {{ day }}
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-2">
+        <div
+          v-for="date in calendarDates"
+          :key="date.toISOString()"
+          :class="[
+            'text-center p-2 rounded cursor-pointer hover:bg-gray-100',
+            isCurrentMonth(date) ? 'text-black' : 'text-gray-400',
+            isToday(date) ? 'bg-blue-100 font-bold' : '',
+          ]"
+          @click="selectDate(date)"
+        >
+          <div>{{ date.getDate() }}</div>
+          <div class="text-xs text-red-600">
+            ¥{{ getDailyExpense(date).toLocaleString() }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 取引履歴 -->
+    <TransactionList :selected-month="selectedMonth" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import UserCard from "@/components/UserCard.vue";
-import type { User } from "@/types/User.type";
-import { formatDate, getCurrentDate } from "@/utils/dateUtils";
+import { ref, computed, onMounted } from "vue";
+import TransactionList from "@/components/TransactionList.vue";
+import { useTransactionStore } from "@/stores/transactionStore";
 
-const users = ref<User[]>([
-  { id: 1, name: "John Doe", email: "john@example.com" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com" },
-]);
+const transactionStore = useTransactionStore();
 
-const currentDate = formatDate(getCurrentDate());
+const selectedMonth = ref(new Date());
+const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
 
-const handleUpdateUser = (user: User) => {
-  console.log("User updated:", user);
-  console.log("Current date:", currentDate);
+const totalIncome = computed(() => {
+  return transactionStore.transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+});
+
+const totalExpense = computed(() => {
+  return transactionStore.transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+});
+
+const balance = computed(() => totalIncome.value - totalExpense.value);
+
+const calendarDates = computed(() => {
+  const year = selectedMonth.value.getFullYear();
+  const month = selectedMonth.value.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDate = new Date(firstDay);
+  startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+  const dates = [];
+  const current = new Date(startDate);
+  while (current <= lastDay || dates.length % 7 !== 0) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+});
+
+const isCurrentMonth = (date: Date) => {
+  return date.getMonth() === selectedMonth.value.getMonth();
 };
+
+const isToday = (date: Date) => {
+  const today = new Date();
+  return date.toDateString() === today.toDateString();
+};
+
+const getDailyExpense = (date: Date) => {
+  return transactionStore.transactions
+    .filter(
+      (t) =>
+        t.type === "expense" && t.date.toDateString() === date.toDateString(),
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+};
+
+const selectDate = (date: Date) => {
+  selectedMonth.value = new Date(date.getFullYear(), date.getMonth(), 1);
+};
+
+onMounted(() => {
+  transactionStore.fetchTransactions();
+});
 </script>
 
 <style scoped>
-.home {
-  padding: 2rem;
-}
+/* 必要に応じてスタイル追加 */
 </style>

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { RouterView } from "vue-router";
+import { RouterView, RouterLink } from "vue-router";
 </script>
 
 <template>
   <div id="app">
     <header class="bg-blue-500 text-white p-4">
-      <h1 class="text-2xl font-bold">Vue 3 アプリケーション</h1>
+      <h1 class="text-2xl font-bold">ふたりで家計簿</h1>
+      <nav class="mt-2">
+        <RouterLink to="/" class="mr-4 hover:underline">ホーム</RouterLink>
+        <RouterLink to="/charts" class="hover:underline">チャート</RouterLink>
+      </nav>
     </header>
     <main class="container mx-auto p-4">
       <RouterView />
