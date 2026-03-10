@@ -20,7 +20,8 @@
                 :y="slice.labelY"
                 text-anchor="middle"
                 dominant-baseline="middle"
-                class="text-xs font-semibold fill-white"
+                class="text-xs font-semibold"
+                fill="black"
               >
                 {{ slice.percentage }}%
               </text>
@@ -88,12 +89,12 @@ const pieSlices = computed(() => {
 
   let cumulativeAngle = 0;
   const colors = [
-    "#FF6384",
-    "#36A2EB",
-    "#FFCE56",
-    "#4BC0C0",
-    "#9966FF",
-    "#FF9F40",
+    "#3b82f6", // primary
+    "#6b7280", // secondary
+    "#ef4444", // accent
+    "#dbeafe", // primary-light
+    "#f5f5f5", // secondary-light
+    "#fecaca", // accent-light
   ];
 
   return categoryTotals.value.map((category, index) => {

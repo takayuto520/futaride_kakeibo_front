@@ -4,34 +4,34 @@ import { RouterView, RouterLink } from "vue-router";
 
 <template>
   <div id="app">
-    <header class="bg-blue-500 text-white p-4">
+    <header class="bg-primary p-4">
       <h1 class="text-2xl font-bold mb-4">ふたりで家計簿</h1>
       <nav class="flex space-x-4">
         <RouterLink
           to="/"
-          class="px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-          active-class="bg-blue-700"
+          class="px-4 py-2 rounded-md hover:bg-primary-light transition-colors"
+          active-class="bg-primary"
         >
           ホーム
         </RouterLink>
         <RouterLink
           to="/input"
-          class="px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-          active-class="bg-blue-700"
+          class="px-4 py-2 rounded-md hover:bg-primary-light transition-colors"
+          active-class="bg-primary"
         >
           入力
         </RouterLink>
         <RouterLink
           to="/charts"
-          class="px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-          active-class="bg-blue-700"
+          class="px-4 py-2 rounded-md hover:bg-primary-light transition-colors"
+          active-class="bg-primary"
         >
           グラフ
         </RouterLink>
         <RouterLink
           to="/categories"
-          class="px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-          active-class="bg-blue-700"
+          class="px-4 py-2 rounded-md hover:bg-primary-light transition-colors"
+          active-class="bg-primary"
         >
           カテゴリ
         </RouterLink>

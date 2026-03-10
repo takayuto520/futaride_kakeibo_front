@@ -135,7 +135,7 @@ const editingCategory = ref<Category | null>(null);
 const formData = ref({
   name: "",
   type: "expense" as "income" | "expense",
-  color: "#3B82F6",
+  color: "#3b82f6", // primary-500
 });
 
 const categories = ref(categoryStore.categories);

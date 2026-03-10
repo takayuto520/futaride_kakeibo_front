@@ -7,24 +7,24 @@
       <h2 class="text-xl font-semibold mb-4">月次収支サマリー</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="text-center">
-          <p class="text-2xl font-bold text-green-600">
+          <p class="text-2xl font-bold text-secondary">
             ¥{{ totalIncome.toLocaleString() }}
           </p>
-          <p class="text-gray-600">収入</p>
+          <p class="text-secondary">収入</p>
         </div>
         <div class="text-center">
-          <p class="text-2xl font-bold text-red-600">
+          <p class="text-2xl font-bold text-accent">
             ¥{{ totalExpense.toLocaleString() }}
           </p>
-          <p class="text-gray-600">支出</p>
+          <p class="text-secondary">支出</p>
         </div>
         <div class="text-center">
           <p
-            class="text-2xl font-bold {{ balance >= 0 ? 'text-green-600' : 'text-red-600' }}"
+            class="text-2xl font-bold {{ balance >= 0 ? 'text-balance-positive' : 'text-balance-negative' }}"
           >
             ¥{{ balance.toLocaleString() }}
           </p>
-          <p class="text-gray-600">収支</p>
+          <p class="text-secondary">収支</p>
         </div>
       </div>
     </div>
