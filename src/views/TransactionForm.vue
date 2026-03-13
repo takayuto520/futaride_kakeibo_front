@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import type { Transaction } from "@/types/Transaction.type";
 import { useTransactionStore } from "@/stores/transactionStore";
@@ -148,7 +148,7 @@ const transactionStore = useTransactionStore();
 const categoryStore = useCategoryStore();
 
 const loading = ref(false);
-const categories = ref(categoryStore.categories);
+const categories = computed(() => categoryStore.categories);
 
 const formData = ref<FormTransaction>({
   date: new Date().toLocaleDateString("sv-SE"), // YYYY-MM-DD
@@ -200,8 +200,8 @@ const handleCancel = () => {
   router.push("/");
 };
 
-onMounted(() => {
-  categoryStore.fetchCategories();
+onMounted(async () => {
+  await categoryStore.fetchCategories();
 });
 </script>
 

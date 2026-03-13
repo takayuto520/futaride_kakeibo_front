@@ -95,7 +95,6 @@ const getCategoryName = (categoryId: number): string => {
 };
 
 onMounted(() => {
-  transactionStore.fetchTransactions();
   categoryStore.fetchCategories();
 });
 </script>

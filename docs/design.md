@@ -247,6 +247,23 @@ interface Transaction {
 - 状態: transactions, loading, error
 - アクション: fetchTransactions, addTransaction, updateTransaction, deleteTransaction
 
+#### 6.2.1 取引登録フロー（入力画面連携）
+
+- 対象画面: TransactionForm.vue
+- フロー:
+  1. 入力画面で日付・タイプ・金額・カテゴリ・メモを入力して送信
+  2. 画面から `useTransactionStore.addTransaction()` を呼び出し
+  3. `addTransaction` 内で `POST /api/transactions` を実行
+  4. APIレスポンスで返却された取引データをStoreの `transactions` に追加
+  5. 追加後、ホーム画面や取引一覧画面はStoreの更新を自動反映
+
+- エラーハンドリング:
+  - APIエラー時はStoreの `error` を更新
+  - 呼び出し元画面へ例外を再送出し、入力画面でエラーメッセージを表示
+
+- 日付項目の扱い:
+  - APIレスポンスの日付文字列（`date`, `createdAt`）はStoreで `Date` 型へ正規化して保持する
+
 ### 6.3 useCategoryStore
 
 - 状態: categories

@@ -1,6 +1,20 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Transaction } from "@/types/Transaction.type";
+import {
+  createTransaction,
+  deleteTransaction as deleteTransactionApi,
+  fetchTransactions as fetchTransactionsApi,
+  updateTransaction as updateTransactionApi,
+} from "@/services/transactionService";
+
+const normalizeTransaction = (transaction: Transaction): Transaction => {
+  return {
+    ...transaction,
+    date: new Date(transaction.date),
+    createdAt: new Date(transaction.createdAt),
+  };
+};
 
 export const useTransactionStore = defineStore("transaction", () => {
   const transactions = ref<Transaction[]>([]);
@@ -11,22 +25,13 @@ export const useTransactionStore = defineStore("transaction", () => {
     loading.value = true;
     error.value = null;
     try {
-      // API呼び出しのシミュレーション
-      const mockTransactions: Transaction[] = [
-        {
-          id: 1,
-          userId: 1,
-          type: "expense",
-          amount: 5000,
-          categoryId: 2,
-          date: new Date("2024-03-10"),
-          memo: "スーパー",
-          createdAt: new Date("2024-03-10T10:00:00Z"),
-        },
-      ];
-      transactions.value = mockTransactions;
+      const response = await fetchTransactionsApi();
+      transactions.value = response.data.map((transaction) =>
+        normalizeTransaction(transaction),
+      );
     } catch (err) {
       error.value = "Failed to fetch transactions";
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -38,15 +43,11 @@ export const useTransactionStore = defineStore("transaction", () => {
     loading.value = true;
     error.value = null;
     try {
-      // API呼び出しのシミュレーション
-      const newTransaction: Transaction = {
-        ...transaction,
-        id: Date.now(),
-        createdAt: new Date(),
-      };
-      transactions.value.push(newTransaction);
+      const createdTransaction = await createTransaction(transaction);
+      transactions.value.push(normalizeTransaction(createdTransaction));
     } catch (err) {
       error.value = "Failed to add transaction";
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -59,17 +60,14 @@ export const useTransactionStore = defineStore("transaction", () => {
     loading.value = true;
     error.value = null;
     try {
-      // API呼び出しのシミュレーション
+      const updatedTransaction = await updateTransactionApi(id, updates);
       const index = transactions.value.findIndex((t) => t.id === id);
       if (index !== -1) {
-        const { id: _, ...updateFields } = updates as any;
-        transactions.value[index] = {
-          ...transactions.value[index],
-          ...updateFields,
-        };
+        transactions.value[index] = normalizeTransaction(updatedTransaction);
       }
     } catch (err) {
       error.value = "Failed to update transaction";
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -79,10 +77,11 @@ export const useTransactionStore = defineStore("transaction", () => {
     loading.value = true;
     error.value = null;
     try {
-      // API呼び出しのシミュレーション
+      await deleteTransactionApi(id);
       transactions.value = transactions.value.filter((t) => t.id !== id);
     } catch (err) {
       error.value = "Failed to delete transaction";
+      throw err;
     } finally {
       loading.value = false;
     }
