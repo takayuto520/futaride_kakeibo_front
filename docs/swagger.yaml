@@ -1,0 +1,524 @@
+openapi: 3.0.3
+info:
+  title: ふたりで家計簿 API
+  version: 1.0.0
+  description: |
+    ふたりで家計簿のフロントエンドが利用する API 仕様です。
+    最低限のエンドポイント、メソッド、リクエスト、レスポンスを定義しています。
+
+servers:
+  - url: http://localhost:4000
+    description: 開発環境
+
+tags:
+  - name: Users
+    description: ユーザー関連 API
+  - name: Transactions
+    description: 取引関連 API
+  - name: Categories
+    description: カテゴリ関連 API
+
+paths:
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: ユーザー一覧取得
+      operationId: fetchUsers
+      responses:
+        '200':
+          description: ユーザー一覧の取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUsers'
+
+  /api/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: ユーザー詳細取得
+      operationId: fetchUser
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: ユーザー詳細の取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUser'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: 取引一覧取得
+      operationId: fetchTransactions
+      responses:
+        '200':
+          description: 取引一覧の取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionsResponse'
+    post:
+      tags:
+        - Transactions
+      summary: 取引新規作成
+      operationId: createTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreateRequest'
+      responses:
+        '201':
+          description: 取引の作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseTransaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/transactions/{id}:
+    put:
+      tags:
+        - Transactions
+      summary: 取引更新
+      operationId: updateTransaction
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionUpdateRequest'
+      responses:
+        '200':
+          description: 取引の更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseTransaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Transactions
+      summary: 取引削除
+      operationId: deleteTransaction
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: 取引の削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/categories:
+    get:
+      tags:
+        - Categories
+      summary: カテゴリ一覧取得
+      operationId: fetchCategories
+      responses:
+        '200':
+          description: カテゴリ一覧の取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseCategories'
+    post:
+      tags:
+        - Categories
+      summary: カテゴリ新規作成
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateRequest'
+      responses:
+        '201':
+          description: カテゴリの作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseCategory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/categories/{id}:
+    put:
+      tags:
+        - Categories
+      summary: カテゴリ更新
+      operationId: updateCategory
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryUpdateRequest'
+      responses:
+        '200':
+          description: カテゴリの更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseCategory'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Categories
+      summary: カテゴリ削除
+      operationId: deleteCategory
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: カテゴリの削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: 対象リソースの ID
+      schema:
+        type: integer
+        example: 1
+
+  responses:
+    BadRequest:
+      description: リクエスト不正
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: 対象データなし
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - createdAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        createdAt:
+          type: string
+          format: date-time
+          example: 2024-03-10T10:00:00Z
+
+    Category:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - color
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: 食費
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+          example: expense
+        color:
+          type: string
+          example: '#EF4444'
+
+    Transaction:
+      type: object
+      required:
+        - id
+        - userId
+        - type
+        - amount
+        - categoryId
+        - date
+        - createdAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+          example: expense
+        amount:
+          type: integer
+          minimum: 1
+          example: 5000
+        categoryId:
+          type: integer
+          example: 2
+        date:
+          type: string
+          format: date
+          example: 2024-03-10
+        memo:
+          type: string
+          nullable: true
+          example: スーパー
+        createdAt:
+          type: string
+          format: date-time
+          example: 2024-03-10T10:00:00Z
+
+    TransactionCreateRequest:
+      type: object
+      required:
+        - userId
+        - type
+        - amount
+        - categoryId
+        - date
+      properties:
+        userId:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+          example: expense
+        amount:
+          type: integer
+          minimum: 1
+          example: 5000
+        categoryId:
+          type: integer
+          example: 2
+        date:
+          type: string
+          format: date
+          example: 2024-03-10
+        memo:
+          type: string
+          nullable: true
+          example: スーパー
+
+    TransactionUpdateRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+          example: income
+        amount:
+          type: integer
+          minimum: 1
+          example: 10000
+        categoryId:
+          type: integer
+          example: 3
+        date:
+          type: string
+          format: date
+          example: 2024-03-15
+        memo:
+          type: string
+          nullable: true
+          example: 給与修正
+
+    CategoryCreateRequest:
+      type: object
+      required:
+        - name
+        - type
+        - color
+      properties:
+        name:
+          type: string
+          example: 日用品
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+          example: expense
+        color:
+          type: string
+          example: '#10B981'
+
+    CategoryUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 交通費
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+          example: expense
+        color:
+          type: string
+          example: '#3B82F6'
+
+    ApiResponseUser:
+      type: object
+      required:
+        - data
+        - success
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ユーザー取得成功
+
+    ApiResponseUsers:
+      type: object
+      required:
+        - data
+        - success
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: ユーザー一覧取得成功
+
+    ApiResponseCategory:
+      type: object
+      required:
+        - data
+        - success
+      properties:
+        data:
+          $ref: '#/components/schemas/Category'
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: カテゴリ処理成功
+
+    ApiResponseCategories:
+      type: object
+      required:
+        - data
+        - success
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: カテゴリ一覧取得成功
+
+    ApiResponseTransaction:
+      type: object
+      required:
+        - data
+        - success
+      properties:
+        data:
+          $ref: '#/components/schemas/Transaction'
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 取引処理成功
+
+    TransactionsResponse:
+      type: object
+      required:
+        - data
+        - total
+        - page
+        - limit
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        total:
+          type: integer
+          example: 1
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: リクエストの処理に失敗しました
