@@ -1,49 +1,42 @@
 <template>
   <div class="transaction-form p-6 max-w-4xl mx-auto">
     <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">取引登録</h2>
       <form @submit.prevent="handleSubmit" class="space-y-4">
-        <!-- 日付 -->
-        <div>
-          <label
-            for="date"
-            class="block text-sm font-medium text-text-primary mb-1"
-          >
-            日付
-          </label>
-          <input
-            id="date"
-            v-model="formData.date"
-            type="date"
-            required
-            class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
         <!-- タイプ -->
         <div>
-          <label class="block text-sm font-medium text-text-primary mb-1">
-            タイプ
-          </label>
-          <div class="flex space-x-4">
-            <label class="flex items-center">
-              <input
-                v-model="formData.type"
-                type="radio"
-                value="income"
-                class="mr-2"
-              />
-              収入
-            </label>
-            <label class="flex items-center">
-              <input
-                v-model="formData.type"
-                type="radio"
-                value="expense"
-                class="mr-2"
-              />
+          <div
+            class="grid grid-cols-2 gap-1 p-1 rounded-lg border border-border bg-secondary-light"
+            role="radiogroup"
+            aria-label="取引タイプ"
+          >
+            <button
+              type="button"
+              role="radio"
+              :aria-checked="formData.type === 'expense'"
+              @click="formData.type = 'expense'"
+              :class="[
+                'py-2 rounded-md text-sm font-semibold transition-colors',
+                formData.type === 'expense'
+                  ? 'bg-surface text-primary-active shadow-sm'
+                  : 'text-text-secondary hover:bg-surface/70',
+              ]"
+            >
               支出
-            </label>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              :aria-checked="formData.type === 'income'"
+              @click="formData.type = 'income'"
+              :class="[
+                'py-2 rounded-md text-sm font-semibold transition-colors',
+                formData.type === 'income'
+                  ? 'bg-surface text-primary-active shadow-sm'
+                  : 'text-text-secondary hover:bg-surface/70',
+              ]"
+            >
+              収入
+            </button>
           </div>
         </div>
 
@@ -57,9 +50,11 @@
           </label>
           <input
             id="amount"
-            v-model.number="formData.amount"
-            type="number"
-            min="1"
+            v-model="formData.amount"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
             required
             class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -79,7 +74,6 @@
             required
             class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">選択してください</option>
             <option
               v-for="category in categories"
               :key="category.id"
@@ -106,21 +100,39 @@
           ></textarea>
         </div>
 
+        <!-- 日付 -->
+        <div @click="openDatePicker" class="cursor-pointer">
+          <label
+            for="date"
+            class="block text-sm font-medium text-text-primary mb-1"
+          >
+            日付
+          </label>
+          <input
+            id="date"
+            ref="dateInputRef"
+            v-model="formData.date"
+            type="date"
+            required
+            class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+          />
+        </div>
+
         <!-- ボタン -->
         <div class="flex space-x-4">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="flex-1 bg-primary text-surface py-2 px-4 rounded-md hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-          >
-            {{ loading ? "登録中..." : "登録" }}
-          </button>
           <button
             type="button"
             @click="handleCancel"
             class="flex-1 bg-gray text-surface py-2 px-4 rounded-md hover:bg-gray-dark focus:outline-none focus:ring-2 focus:ring-gray"
           >
             キャンセル
+          </button>
+          <button
+            type="submit"
+            :disabled="loading"
+            class="flex-1 bg-primary text-surface py-2 px-4 rounded-md font-semibold hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+          >
+            {{ loading ? "登録中..." : "登録" }}
           </button>
         </div>
       </form>
@@ -135,11 +147,12 @@ import type { Transaction } from "@/types/Transaction.type";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useCategoryStore } from "@/stores/categoryStore";
 
-interface FormTransaction extends Omit<
-  Transaction,
-  "id" | "userId" | "createdAt" | "date"
-> {
+interface TransactionFormState {
+  type: "income" | "expense";
+  categoryId: number;
+  memo?: string;
   date: string;
+  amount: string;
 }
 
 const router = useRouter();
@@ -148,17 +161,25 @@ const categoryStore = useCategoryStore();
 
 const loading = ref(false);
 const categories = computed(() => categoryStore.categories);
+const dateInputRef = ref<HTMLInputElement | null>(null);
 
-const formData = ref<FormTransaction>({
+const getDefaultCategoryId = (): number => {
+  return categories.value[0]?.id ?? 0;
+};
+
+const formData = ref<TransactionFormState>({
   date: new Date().toLocaleDateString("sv-SE"), // YYYY-MM-DD
   type: "expense" as "income" | "expense",
-  amount: 0,
-  categoryId: 0,
+  amount: "",
+  categoryId: getDefaultCategoryId(),
   memo: "",
 });
 
 const handleSubmit = async () => {
-  if (formData.value.amount <= 0) {
+  const amountText = formData.value.amount.trim();
+  const amount = Number(amountText);
+
+  if (!/^\d+$/.test(amountText) || !Number.isFinite(amount) || amount <= 0) {
     alert("金額は1以上を入力してください");
     return;
   }
@@ -168,7 +189,7 @@ const handleSubmit = async () => {
     const transaction: Omit<Transaction, "id" | "createdAt"> = {
       userId: 1, // TODO: 現在のユーザーIDを取得
       type: formData.value.type,
-      amount: formData.value.amount,
+      amount,
       categoryId: formData.value.categoryId,
       date: new Date(formData.value.date),
       memo: formData.value.memo,
@@ -180,8 +201,8 @@ const handleSubmit = async () => {
     formData.value = {
       date: new Date().toLocaleDateString("sv-SE"),
       type: "expense",
-      amount: 0,
-      categoryId: 0,
+      amount: "",
+      categoryId: getDefaultCategoryId(),
       memo: "",
     };
 
@@ -199,8 +220,30 @@ const handleCancel = () => {
   router.push("/");
 };
 
+const openDatePicker = () => {
+  const dateInput = dateInputRef.value;
+  if (!dateInput) return;
+
+  dateInput.focus();
+  if (typeof dateInput.showPicker === "function") {
+    try {
+      dateInput.showPicker();
+      return;
+    } catch (error) {
+      // Fallback for browsers that restrict showPicker calls.
+    }
+  }
+
+  dateInput.click();
+};
+
 onMounted(async () => {
   await categoryStore.fetchCategories();
+  const firstCategory =
+    categories.value.length > 0 ? categories.value[0] : null;
+  if (firstCategory && formData.value.categoryId === 0) {
+    formData.value.categoryId = firstCategory.id;
+  }
 });
 </script>
 
