@@ -1,107 +1,23 @@
 <template>
   <div class="home p-6 max-w-4xl mx-auto">
     <!-- 月次収支サマリー -->
-    <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">月次収支サマリー</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="text-center">
-          <p class="text-2xl font-bold text-secondary">
-            ¥{{ totalIncome.toLocaleString() }}
-          </p>
-          <p class="text-secondary">収入</p>
-        </div>
-        <div class="text-center">
-          <p class="text-2xl font-bold text-secondary">
-            ¥{{ totalExpense.toLocaleString() }}
-          </p>
-          <p class="text-secondary">支出</p>
-        </div>
-        <div class="text-center">
-          <p
-            :class="[
-              'text-2xl font-bold',
-              balance >= 0 ? 'text-balance-positive' : 'text-balance-negative',
-            ]"
-          >
-            ¥{{ balance.toLocaleString() }}
-          </p>
-          <p class="text-secondary">収支</p>
-        </div>
-      </div>
-    </div>
+    <MonthlySummaryCard
+      :income="totalIncome"
+      :expense="totalExpense"
+      :balance="balance"
+    />
 
     <!-- カレンダー表示 -->
     <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
-      <div class="grid grid-cols-3 items-center mb-4">
-        <button
-          type="button"
-          class="justify-self-start inline-flex h-9 w-9 items-center justify-center rounded-full text-text-secondary hover:bg-secondary-light hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-label="前の月へ"
-          @click="moveMonth(-1)"
-        >
-          <span aria-hidden="true">&lt;</span>
-        </button>
-        <div class="flex items-center justify-center gap-2">
-          <div class="relative">
-            <select
-              v-model.number="selectedYear"
-              class="appearance-none bg-surface border border-border px-3 py-1.5 pr-8 text-sm font-semibold text-text-primary cursor-pointer rounded-full shadow-sm hover:bg-secondary-light focus:outline-none focus:ring-2 focus:ring-gray"
-              aria-label="表示する年を選択"
-            >
-              <option v-for="year in selectableYears" :key="year" :value="year">
-                {{ year }}年
-              </option>
-            </select>
-            <svg
-              class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.16l3.71-3.93a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="relative">
-            <select
-              v-model.number="selectedMonthNumber"
-              class="appearance-none bg-surface border border-border px-3 py-1.5 pr-8 text-sm font-semibold text-text-primary cursor-pointer rounded-full shadow-sm hover:bg-secondary-light focus:outline-none focus:ring-2 focus:ring-gray"
-              aria-label="表示する月を選択"
-            >
-              <option
-                v-for="month in selectableMonths"
-                :key="month"
-                :value="month"
-              >
-                {{ month }}月
-              </option>
-            </select>
-            <svg
-              class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.16l3.71-3.93a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
-        <button
-          type="button"
-          class="justify-self-end inline-flex h-9 w-9 items-center justify-center rounded-full text-text-secondary hover:bg-secondary-light hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-label="次の月へ"
-          @click="moveMonth(1)"
-        >
-          <span aria-hidden="true">&gt;</span>
-        </button>
-      </div>
+      <MonthNavigator
+        :year="selectedYear"
+        :month="selectedMonthNumber"
+        :selectable-years="selectableYears"
+        :selectable-months="selectableMonths"
+        @update:year="selectedYear = $event"
+        @update:month="selectedMonthNumber = $event"
+        @move="moveMonth"
+      />
       <div
         class="grid grid-cols-7 gap-0 mb-4 border border-border rounded-md overflow-hidden"
       >
@@ -158,6 +74,8 @@ import {
   startOfWeek,
 } from "date-fns";
 import TransactionList from "@/components/TransactionList.vue";
+import MonthlySummaryCard from "@/components/MonthlySummaryCard.vue";
+import MonthNavigator from "@/components/MonthNavigator.vue";
 import { useTransactionStore } from "@/stores/transactionStore";
 
 const transactionStore = useTransactionStore();

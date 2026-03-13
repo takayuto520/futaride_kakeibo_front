@@ -3,42 +3,7 @@
     <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- タイプ -->
-        <div>
-          <div
-            class="grid grid-cols-2 gap-1 p-1 rounded-lg border border-border bg-secondary-light"
-            role="radiogroup"
-            aria-label="取引タイプ"
-          >
-            <button
-              type="button"
-              role="radio"
-              :aria-checked="formData.type === 'expense'"
-              @click="formData.type = 'expense'"
-              :class="[
-                'py-2 rounded-md text-sm font-semibold transition-colors',
-                formData.type === 'expense'
-                  ? 'bg-surface text-primary-active shadow-sm'
-                  : 'text-text-secondary hover:bg-surface/70',
-              ]"
-            >
-              支出
-            </button>
-            <button
-              type="button"
-              role="radio"
-              :aria-checked="formData.type === 'income'"
-              @click="formData.type = 'income'"
-              :class="[
-                'py-2 rounded-md text-sm font-semibold transition-colors',
-                formData.type === 'income'
-                  ? 'bg-surface text-primary-active shadow-sm'
-                  : 'text-text-secondary hover:bg-surface/70',
-              ]"
-            >
-              収入
-            </button>
-          </div>
-        </div>
+        <TypeToggle v-model="formData.type" />
 
         <!-- 金額 -->
         <div>
@@ -146,6 +111,7 @@ import { useRouter } from "vue-router";
 import type { Transaction } from "@/types/Transaction.type";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useCategoryStore } from "@/stores/categoryStore";
+import TypeToggle from "@/components/TypeToggle.vue";
 
 interface TransactionFormState {
   type: "income" | "expense";

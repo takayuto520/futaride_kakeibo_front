@@ -1,26 +1,32 @@
 <template>
   <div class="category-manager p-6 max-w-4xl mx-auto">
     <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">カテゴリ管理</h2>
+      <!-- タイプトグル -->
+      <TypeToggle
+        :model-value="selectedType"
+        aria-label="カテゴリタイプ"
+        class="mb-6"
+        @update:model-value="switchType"
+      />
 
       <!-- カテゴリ一覧 -->
       <div class="mb-6">
         <h3 class="text-lg font-semibold mb-4">カテゴリ一覧</h3>
         <div class="space-y-2">
+          <p
+            v-if="filteredCategories.length === 0"
+            class="text-text-secondary text-sm"
+          >
+            カテゴリがありません
+          </p>
           <div
-            v-for="category in categories"
+            v-for="category in filteredCategories"
             :key="category.id"
             class="flex items-center justify-between p-3 bg-secondary-light rounded-md"
           >
             <div class="flex items-center space-x-3">
-              <span
-                :style="{ backgroundColor: category.color }"
-                class="w-4 h-4 rounded-full"
-              ></span>
+              <CategoryColorDot :color="category.color" />
               <span>{{ category.name }}</span>
-              <span class="text-sm text-text-secondary"
-                >({{ category.type === "income" ? "収入" : "支出" }})</span
-              >
             </div>
             <div class="flex space-x-2">
               <button
@@ -59,32 +65,6 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-text-primary mb-1">
-            タイプ
-          </label>
-          <div class="flex space-x-4">
-            <label class="flex items-center">
-              <input
-                v-model="formData.type"
-                type="radio"
-                value="income"
-                class="mr-2"
-              />
-              収入
-            </label>
-            <label class="flex items-center">
-              <input
-                v-model="formData.type"
-                type="radio"
-                value="expense"
-                class="mr-2"
-              />
-              支出
-            </label>
-          </div>
-        </div>
-
-        <div>
           <label
             for="color"
             class="block text-sm font-medium text-text-primary mb-1"
@@ -101,19 +81,19 @@
 
         <div class="flex space-x-4">
           <button
-            type="submit"
-            :disabled="loading"
-            class="flex-1 bg-primary text-surface py-2 px-4 rounded-md hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-          >
-            {{ editingCategory ? "更新" : "追加" }}
-          </button>
-          <button
             v-if="editingCategory"
             type="button"
             @click="cancelEdit"
             class="flex-1 bg-gray text-surface py-2 px-4 rounded-md hover:bg-gray-dark focus:outline-none focus:ring-2 focus:ring-gray"
           >
             キャンセル
+          </button>
+          <button
+            type="submit"
+            :disabled="loading"
+            class="flex-1 bg-primary text-surface py-2 px-4 rounded-md font-semibold hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+          >
+            {{ editingCategory ? "更新" : "追加" }}
           </button>
         </div>
       </form>
@@ -122,15 +102,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import type { Category } from "@/types/Category.type";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { COLOR_TOKENS } from "@/constants/colorTokens";
+import TypeToggle from "@/components/TypeToggle.vue";
+import CategoryColorDot from "@/components/CategoryColorDot.vue";
 
 const categoryStore = useCategoryStore();
 
 const loading = ref(false);
 const editingCategory = ref<Category | null>(null);
+const selectedType = ref<"income" | "expense">("expense");
 
 interface CategoryFormData {
   name: string;
@@ -140,11 +123,24 @@ interface CategoryFormData {
 
 const formData = ref<CategoryFormData>({
   name: "",
-  type: "expense" as "income" | "expense",
+  type: "expense",
   color: COLOR_TOKENS.primary,
 });
 
-const categories = ref(categoryStore.categories);
+const filteredCategories = computed(() =>
+  categoryStore.categories.filter((c) => c.type === selectedType.value),
+);
+
+const switchType = (type: "income" | "expense") => {
+  selectedType.value = type;
+  // タイプ切替時は編集をキャンセルしてフォームをリセット
+  editingCategory.value = null;
+  formData.value = {
+    name: "",
+    type,
+    color: COLOR_TOKENS.primary,
+  };
+};
 
 const editCategory = (category: Category) => {
   editingCategory.value = category;
@@ -159,7 +155,7 @@ const cancelEdit = () => {
   editingCategory.value = null;
   formData.value = {
     name: "",
-    type: "expense",
+    type: selectedType.value,
     color: COLOR_TOKENS.primary,
   };
 };
@@ -187,12 +183,15 @@ const handleSubmit = async () => {
       editingCategory.value = null;
       alert("カテゴリを更新しました");
     } else {
-      await categoryStore.addCategory(formData.value);
+      await categoryStore.addCategory({
+        ...formData.value,
+        type: selectedType.value,
+      });
       alert("カテゴリを追加しました");
     }
     formData.value = {
       name: "",
-      type: "expense",
+      type: selectedType.value,
       color: COLOR_TOKENS.primary,
     };
   } catch (error) {
