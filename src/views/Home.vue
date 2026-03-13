@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-6">ホーム</h1>
 
     <!-- 月次収支サマリー -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">月次収支サマリー</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="text-center">
@@ -30,13 +30,13 @@
     </div>
 
     <!-- カレンダー表示 -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">カレンダー</h2>
       <div class="grid grid-cols-7 gap-2 mb-4">
         <div
           v-for="day in daysOfWeek"
           :key="day"
-          class="text-center font-semibold text-gray-600"
+          class="text-center font-semibold text-text-secondary"
         >
           {{ day }}
         </div>
@@ -46,14 +46,14 @@
           v-for="date in calendarDates"
           :key="date.toISOString()"
           :class="[
-            'text-center p-2 rounded cursor-pointer hover:bg-gray-100',
-            isCurrentMonth(date) ? 'text-black' : 'text-gray-400',
-            isToday(date) ? 'bg-blue-100 font-bold' : '',
+            'text-center p-2 rounded cursor-pointer hover:bg-secondary-light',
+            isCurrentMonth(date) ? 'text-text-primary' : 'text-disabled',
+            isToday(date) ? 'bg-primary-nav-default font-bold' : '',
           ]"
           @click="selectDate(date)"
         >
           <div>{{ date.getDate() }}</div>
-          <div class="text-xs text-red-600">
+          <div class="text-xs text-balance-negative">
             ¥{{ getDailyExpense(date).toLocaleString() }}
           </div>
         </div>

@@ -1,14 +1,14 @@
 <template>
   <div class="transaction-form p-6 max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold mb-6">記録入力</h1>
-    <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
       <h2 class="text-2xl font-bold mb-6 text-center">取引登録</h2>
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- 日付 -->
         <div>
           <label
             for="date"
-            class="block text-sm font-medium text-gray-700 mb-1"
+            class="block text-sm font-medium text-text-primary mb-1"
           >
             日付
           </label>
@@ -17,13 +17,13 @@
             v-model="formData.date"
             type="date"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         <!-- タイプ -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
+          <label class="block text-sm font-medium text-text-primary mb-1">
             タイプ
           </label>
           <div class="flex space-x-4">
@@ -52,7 +52,7 @@
         <div>
           <label
             for="amount"
-            class="block text-sm font-medium text-gray-700 mb-1"
+            class="block text-sm font-medium text-text-primary mb-1"
           >
             金額
           </label>
@@ -62,7 +62,7 @@
             type="number"
             min="1"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -70,7 +70,7 @@
         <div>
           <label
             for="category"
-            class="block text-sm font-medium text-gray-700 mb-1"
+            class="block text-sm font-medium text-text-primary mb-1"
           >
             カテゴリ
           </label>
@@ -78,7 +78,7 @@
             id="category"
             v-model="formData.categoryId"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">選択してください</option>
             <option
@@ -95,7 +95,7 @@
         <div>
           <label
             for="memo"
-            class="block text-sm font-medium text-gray-700 mb-1"
+            class="block text-sm font-medium text-text-primary mb-1"
           >
             メモ
           </label>
@@ -103,7 +103,7 @@
             id="memo"
             v-model="formData.memo"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           ></textarea>
         </div>
 
@@ -112,14 +112,14 @@
           <button
             type="submit"
             :disabled="loading"
-            class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            class="flex-1 bg-primary text-surface py-2 px-4 rounded-md hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
           >
             {{ loading ? "登録中..." : "登録" }}
           </button>
           <button
             type="button"
             @click="handleCancel"
-            class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            class="flex-1 bg-gray text-surface py-2 px-4 rounded-md hover:bg-gray-dark focus:outline-none focus:ring-2 focus:ring-gray"
           >
             キャンセル
           </button>

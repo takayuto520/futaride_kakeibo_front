@@ -1,20 +1,20 @@
 <template>
-  <div class="bg-white rounded-lg shadow-md">
-    <div class="p-4 border-b border-gray-200">
+  <div class="bg-surface rounded-lg shadow-md">
+    <div class="p-4 border-b border-border">
       <h3 class="text-lg font-semibold">取引履歴</h3>
     </div>
     <div class="max-h-96 overflow-y-auto">
       <div
         v-if="transactions.length === 0"
-        class="p-4 text-center text-gray-500"
+        class="p-4 text-center text-text-secondary"
       >
         取引がありません
       </div>
-      <div v-else class="divide-y divide-gray-200">
+      <div v-else class="divide-y divide-border">
         <div
           v-for="transaction in transactions"
           :key="transaction.id"
-          class="p-4 hover:bg-gray-50"
+          class="p-4 hover:bg-secondary-light"
         >
           <div class="flex justify-between items-start">
             <div class="flex-1">
@@ -23,18 +23,21 @@
                   :class="[
                     'inline-block w-3 h-3 rounded-full',
                     transaction.type === 'income'
-                      ? 'bg-green-500'
-                      : 'bg-red-500',
+                      ? 'bg-balance-positive'
+                      : 'bg-balance-negative',
                   ]"
                 ></span>
                 <span class="font-medium">
                   {{ getCategoryName(transaction.categoryId) }}
                 </span>
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-text-secondary">
                   {{ formatDate(transaction.date) }}
                 </span>
               </div>
-              <div v-if="transaction.memo" class="text-sm text-gray-600 mt-1">
+              <div
+                v-if="transaction.memo"
+                class="text-sm text-text-secondary mt-1"
+              >
                 {{ transaction.memo }}
               </div>
             </div>
@@ -43,8 +46,8 @@
                 :class="[
                   'font-semibold',
                   transaction.type === 'income'
-                    ? 'text-green-600'
-                    : 'text-red-600',
+                    ? 'text-balance-positive'
+                    : 'text-balance-negative',
                 ]"
               >
                 {{ transaction.type === "income" ? "+" : "-" }}¥{{

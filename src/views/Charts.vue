@@ -3,16 +3,16 @@
     <h1 class="text-3xl font-bold mb-6">チャート</h1>
 
     <!-- 支出カテゴリ別円グラフ -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">支出カテゴリ別</h2>
       <div class="flex justify-center">
         <div class="w-64 h-64 relative">
-          <svg viewBox="0 0 100 100" class="w-full h-full">
+          <svg viewBox="0 0 100 100" class="w-full h-full text-border">
             <g v-for="(slice, index) in pieSlices" :key="index">
               <path
                 :d="slice.path"
                 :fill="slice.color"
-                stroke="white"
+                stroke="currentColor"
                 stroke-width="0.5"
               />
               <text
@@ -20,8 +20,8 @@
                 :y="slice.labelY"
                 text-anchor="middle"
                 dominant-baseline="middle"
-                class="text-xs font-semibold"
-                fill="black"
+                class="text-xs font-semibold text-text-primary"
+                fill="currentColor"
               >
                 {{ slice.percentage }}%
               </text>
@@ -32,13 +32,13 @@
     </div>
 
     <!-- カテゴリ別合計金額リスト -->
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-surface rounded-lg shadow-md p-6">
       <h2 class="text-xl font-semibold mb-4">カテゴリ別合計</h2>
       <div class="space-y-2">
         <div
           v-for="category in categoryTotals"
           :key="category.id"
-          class="flex justify-between items-center p-3 border rounded"
+          class="flex justify-between items-center p-3 border border-border rounded"
         >
           <div class="flex items-center">
             <div
@@ -60,6 +60,7 @@
 import { computed, onMounted } from "vue";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useCategoryStore } from "@/stores/categoryStore";
+import { COLOR_TOKENS } from "@/constants/colorTokens";
 
 const transactionStore = useTransactionStore();
 const categoryStore = useCategoryStore();
@@ -89,12 +90,12 @@ const pieSlices = computed(() => {
 
   let cumulativeAngle = 0;
   const colors = [
-    "#3b82f6", // primary
-    "#6b7280", // secondary
-    "#ef4444", // accent
-    "#dbeafe", // primary-light
-    "#f5f5f5", // secondary-light
-    "#fecaca", // accent-light
+    COLOR_TOKENS.primary,
+    COLOR_TOKENS.secondary,
+    COLOR_TOKENS.accent,
+    COLOR_TOKENS.primaryHover,
+    COLOR_TOKENS.secondaryLight,
+    COLOR_TOKENS.accentLight,
   ];
 
   return categoryTotals.value.map((category, index) => {

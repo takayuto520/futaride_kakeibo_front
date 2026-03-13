@@ -26,12 +26,12 @@ paths:
       summary: ユーザー一覧取得
       operationId: fetchUsers
       responses:
-        '200':
+        "200":
           description: ユーザー一覧の取得成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseUsers'
+                $ref: "#/components/schemas/ApiResponseUsers"
 
   /api/users/{id}:
     get:
@@ -40,16 +40,16 @@ paths:
       summary: ユーザー詳細取得
       operationId: fetchUser
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '200':
+        "200":
           description: ユーザー詳細の取得成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseUser'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/ApiResponseUser"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /api/transactions:
     get:
@@ -58,12 +58,12 @@ paths:
       summary: 取引一覧取得
       operationId: fetchTransactions
       responses:
-        '200':
+        "200":
           description: 取引一覧の取得成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionsResponse'
+                $ref: "#/components/schemas/TransactionsResponse"
     post:
       tags:
         - Transactions
@@ -74,16 +74,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TransactionCreateRequest'
+              $ref: "#/components/schemas/TransactionCreateRequest"
       responses:
-        '201':
+        "201":
           description: 取引の作成成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseTransaction'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: "#/components/schemas/ApiResponseTransaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
   /api/transactions/{id}:
     put:
@@ -92,36 +92,36 @@ paths:
       summary: 取引更新
       operationId: updateTransaction
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TransactionUpdateRequest'
+              $ref: "#/components/schemas/TransactionUpdateRequest"
       responses:
-        '200':
+        "200":
           description: 取引の更新成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseTransaction'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/ApiResponseTransaction"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
     delete:
       tags:
         - Transactions
       summary: 取引削除
       operationId: deleteTransaction
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '204':
+        "204":
           description: 取引の削除成功
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /api/categories:
     get:
@@ -130,12 +130,12 @@ paths:
       summary: カテゴリ一覧取得
       operationId: fetchCategories
       responses:
-        '200':
+        "200":
           description: カテゴリ一覧の取得成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseCategories'
+                $ref: "#/components/schemas/ApiResponseCategories"
     post:
       tags:
         - Categories
@@ -146,16 +146,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryCreateRequest'
+              $ref: "#/components/schemas/CategoryCreateRequest"
       responses:
-        '201':
+        "201":
           description: カテゴリの作成成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseCategory'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: "#/components/schemas/ApiResponseCategory"
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
   /api/categories/{id}:
     put:
@@ -164,36 +164,36 @@ paths:
       summary: カテゴリ更新
       operationId: updateCategory
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryUpdateRequest'
+              $ref: "#/components/schemas/CategoryUpdateRequest"
       responses:
-        '200':
+        "200":
           description: カテゴリの更新成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponseCategory'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/ApiResponseCategory"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
     delete:
       tags:
         - Categories
       summary: カテゴリ削除
       operationId: deleteCategory
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: "#/components/parameters/Id"
       responses:
-        '204':
+        "204":
           description: カテゴリの削除成功
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
 components:
   parameters:
@@ -212,13 +212,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
     NotFound:
       description: 対象データなし
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
 
   schemas:
     User:
@@ -266,7 +266,7 @@ components:
           example: expense
         color:
           type: string
-          example: '#EF4444'
+          example: "#EF4444"
 
     Transaction:
       type: object
@@ -391,7 +391,7 @@ components:
           example: expense
         color:
           type: string
-          example: '#10B981'
+          example: "#10B981"
 
     CategoryUpdateRequest:
       type: object
@@ -407,7 +407,7 @@ components:
           example: expense
         color:
           type: string
-          example: '#3B82F6'
+          example: "#3B82F6"
 
     ApiResponseUser:
       type: object
@@ -416,7 +416,7 @@ components:
         - success
       properties:
         data:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
         success:
           type: boolean
           example: true
@@ -433,7 +433,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
         success:
           type: boolean
           example: true
@@ -448,7 +448,7 @@ components:
         - success
       properties:
         data:
-          $ref: '#/components/schemas/Category'
+          $ref: "#/components/schemas/Category"
         success:
           type: boolean
           example: true
@@ -465,7 +465,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Category'
+            $ref: "#/components/schemas/Category"
         success:
           type: boolean
           example: true
@@ -480,7 +480,7 @@ components:
         - success
       properties:
         data:
-          $ref: '#/components/schemas/Transaction'
+          $ref: "#/components/schemas/Transaction"
         success:
           type: boolean
           example: true
@@ -499,7 +499,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Transaction'
+            $ref: "#/components/schemas/Transaction"
         total:
           type: integer
           example: 1
