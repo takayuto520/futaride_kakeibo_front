@@ -8,7 +8,7 @@ import { RouterView, RouterLink } from "vue-router";
       <nav class="flex justify-center space-x-4">
         <RouterLink
           to="/"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-surface aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-colors duration-200"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-primary-nav-active-text hover:shadow-sm aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-all duration-200"
           exact-active-class="bg-primary-nav-active text-primary-nav-active-text font-semibold shadow-sm"
         >
           <svg
@@ -27,7 +27,7 @@ import { RouterView, RouterLink } from "vue-router";
         </RouterLink>
         <RouterLink
           to="/input"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-surface aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-colors duration-200"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-primary-nav-active-text hover:shadow-sm aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-all duration-200"
           exact-active-class="bg-primary-nav-active text-primary-nav-active-text font-semibold shadow-sm"
         >
           <svg
@@ -46,7 +46,7 @@ import { RouterView, RouterLink } from "vue-router";
         </RouterLink>
         <RouterLink
           to="/charts"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-surface aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-colors duration-200"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-primary-nav-active-text hover:shadow-sm aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-all duration-200"
           exact-active-class="bg-primary-nav-active text-primary-nav-active-text font-semibold shadow-sm"
         >
           <svg
@@ -65,7 +65,7 @@ import { RouterView, RouterLink } from "vue-router";
         </RouterLink>
         <RouterLink
           to="/categories"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-surface aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-colors duration-200"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-primary-nav-default hover:bg-primary-nav-hover hover:text-primary-nav-active-text hover:shadow-sm aria-disabled:text-primary-nav-inactive aria-disabled:pointer-events-none transition-all duration-200"
           exact-active-class="bg-primary-nav-active text-primary-nav-active-text font-semibold shadow-sm"
         >
           <svg

@@ -11,14 +11,17 @@
           <p class="text-secondary">収入</p>
         </div>
         <div class="text-center">
-          <p class="text-2xl font-bold text-accent">
+          <p class="text-2xl font-bold text-secondary">
             ¥{{ totalExpense.toLocaleString() }}
           </p>
           <p class="text-secondary">支出</p>
         </div>
         <div class="text-center">
           <p
-            class="text-2xl font-bold {{ balance >= 0 ? 'text-balance-positive' : 'text-balance-negative' }}"
+            :class="[
+              'text-2xl font-bold',
+              balance >= 0 ? 'text-balance-positive' : 'text-balance-negative',
+            ]"
           >
             ¥{{ balance.toLocaleString() }}
           </p>
