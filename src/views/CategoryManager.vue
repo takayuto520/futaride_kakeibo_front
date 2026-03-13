@@ -132,7 +132,13 @@ const categoryStore = useCategoryStore();
 const loading = ref(false);
 const editingCategory = ref<Category | null>(null);
 
-const formData = ref({
+interface CategoryFormData {
+  name: string;
+  type: "income" | "expense";
+  color: string;
+}
+
+const formData = ref<CategoryFormData>({
   name: "",
   type: "expense" as "income" | "expense",
   color: COLOR_TOKENS.primary,

@@ -29,7 +29,33 @@
 
     <!-- カレンダー表示 -->
     <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">カレンダー</h2>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">カレンダー</h2>
+        <div class="flex items-center gap-3">
+          <select
+            v-model.number="selectedYear"
+            class="px-2 py-1 border border-border rounded-md text-sm text-text-primary bg-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="表示する年を選択"
+          >
+            <option v-for="year in selectableYears" :key="year" :value="year">
+              {{ year }}年
+            </option>
+          </select>
+          <select
+            v-model.number="selectedMonthNumber"
+            class="px-2 py-1 border border-border rounded-md text-sm text-text-primary bg-surface focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="表示する月を選択"
+          >
+            <option
+              v-for="month in selectableMonths"
+              :key="month"
+              :value="month"
+            >
+              {{ month }}月
+            </option>
+          </select>
+        </div>
+      </div>
       <div class="grid grid-cols-7 gap-2 mb-4">
         <div
           v-for="day in daysOfWeek"
@@ -65,6 +91,16 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  isSameDay,
+  isSameMonth,
+  isToday,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
 import TransactionList from "@/components/TransactionList.vue";
 import { useTransactionStore } from "@/stores/transactionStore";
 
@@ -72,6 +108,12 @@ const transactionStore = useTransactionStore();
 
 const selectedMonth = ref(new Date());
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
+const currentYear = new Date().getFullYear();
+const selectableYears = Array.from(
+  { length: 21 },
+  (_, index) => currentYear - 10 + index,
+);
+const selectableMonths = Array.from({ length: 12 }, (_, index) => index + 1);
 
 const totalIncome = computed(() => {
   return transactionStore.transactions
@@ -87,38 +129,41 @@ const totalExpense = computed(() => {
 
 const balance = computed(() => totalIncome.value - totalExpense.value);
 
-const calendarDates = computed(() => {
-  const year = selectedMonth.value.getFullYear();
-  const month = selectedMonth.value.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startDate = new Date(firstDay);
-  startDate.setDate(startDate.getDate() - firstDay.getDay());
+const selectedYear = computed({
+  get: () => selectedMonth.value.getFullYear(),
+  set: (year: number) => {
+    selectedMonth.value = startOfMonth(
+      new Date(year, selectedMonth.value.getMonth(), 1),
+    );
+  },
+});
 
-  const dates = [];
-  const current = new Date(startDate);
-  while (current <= lastDay || dates.length % 7 !== 0) {
-    dates.push(new Date(current));
-    current.setDate(current.getDate() + 1);
-  }
-  return dates;
+const selectedMonthNumber = computed({
+  get: () => selectedMonth.value.getMonth() + 1,
+  set: (month: number) => {
+    selectedMonth.value = startOfMonth(
+      new Date(selectedMonth.value.getFullYear(), month - 1, 1),
+    );
+  },
+});
+
+const calendarDates = computed(() => {
+  const startDate = startOfWeek(startOfMonth(selectedMonth.value), {
+    weekStartsOn: 0,
+  });
+  const endDate = endOfWeek(endOfMonth(selectedMonth.value), {
+    weekStartsOn: 0,
+  });
+  return eachDayOfInterval({ start: startDate, end: endDate });
 });
 
 const isCurrentMonth = (date: Date) => {
-  return date.getMonth() === selectedMonth.value.getMonth();
-};
-
-const isToday = (date: Date) => {
-  const today = new Date();
-  return date.toDateString() === today.toDateString();
+  return isSameMonth(date, selectedMonth.value);
 };
 
 const getDailyExpense = (date: Date) => {
   return transactionStore.transactions
-    .filter(
-      (t) =>
-        t.type === "expense" && t.date.toDateString() === date.toDateString(),
-    )
+    .filter((t) => t.type === "expense" && isSameDay(t.date, date))
     .reduce((sum, t) => sum + t.amount, 0);
 };
 
