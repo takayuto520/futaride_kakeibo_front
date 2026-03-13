@@ -1,7 +1,5 @@
 <template>
   <div class="home p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">ホーム</h1>
-
     <!-- 月次収支サマリー -->
     <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">月次収支サマリー</h2>

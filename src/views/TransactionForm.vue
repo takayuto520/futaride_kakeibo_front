@@ -1,6 +1,5 @@
 <template>
   <div class="transaction-form p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">記録入力</h1>
     <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
       <h2 class="text-2xl font-bold mb-6 text-center">取引登録</h2>
       <form @submit.prevent="handleSubmit" class="space-y-4">

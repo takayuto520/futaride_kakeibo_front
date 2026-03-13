@@ -1,6 +1,5 @@
 <template>
   <div class="category-manager p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">カテゴリ管理</h1>
     <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
       <h2 class="text-2xl font-bold mb-6 text-center">カテゴリ管理</h2>
 

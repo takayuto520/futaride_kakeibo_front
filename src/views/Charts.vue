@@ -1,7 +1,5 @@
 <template>
   <div class="charts p-6 max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">チャート</h1>
-
     <!-- 支出カテゴリ別円グラフ -->
     <div class="bg-surface rounded-lg shadow-md p-6 mb-6">
       <h2 class="text-xl font-semibold mb-4">支出カテゴリ別</h2>
