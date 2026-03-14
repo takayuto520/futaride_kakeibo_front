@@ -76,6 +76,7 @@ import {
 import TransactionList from "@/components/TransactionList.vue";
 import MonthlySummaryCard from "@/components/MonthlySummaryCard.vue";
 import MonthNavigator from "@/components/MonthNavigator.vue";
+import { useCategoryStore } from "@/stores/categoryStore";
 import { useTransactionStore } from "@/stores/transactionStore";
 
 const transactionStore = useTransactionStore();
@@ -155,8 +156,11 @@ const moveMonth = (offset: number) => {
   selectedMonth.value = startOfMonth(addMonths(selectedMonth.value, offset));
 };
 
+const categoryStore = useCategoryStore();
+
 onMounted(() => {
   transactionStore.fetchTransactions();
+  categoryStore.fetchCategories();
 });
 </script>
 

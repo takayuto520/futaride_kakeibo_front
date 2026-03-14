@@ -4,7 +4,9 @@ import { RouterView, RouterLink } from "vue-router";
 
 <template>
   <div id="app" class="bg-background text-text-primary">
-    <header class="fixed top-0 left-0 right-0 z-50 bg-primary-light text-surface p-4">
+    <header
+      class="fixed top-0 left-0 right-0 z-50 bg-primary-light text-surface p-4"
+    >
       <nav class="flex justify-center space-x-4">
         <RouterLink
           to="/"

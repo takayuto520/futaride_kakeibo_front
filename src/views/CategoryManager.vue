@@ -71,12 +71,75 @@
           >
             色
           </label>
-          <input
-            id="color"
-            v-model="formData.color"
-            type="color"
-            class="w-full h-10 border border-border rounded-md"
-          />
+
+          <div
+            class="grid grid-cols-2 gap-1 p-1 rounded-lg border border-border bg-secondary-light mb-3"
+          >
+            <button
+              type="button"
+              @click="setColorMode('preset')"
+              :class="[
+                'py-2 rounded-md text-sm font-semibold transition-colors',
+                selectedColorMode === 'preset'
+                  ? 'bg-surface text-primary-active shadow-sm'
+                  : 'text-text-secondary hover:bg-surface/70',
+              ]"
+            >
+              プリセット
+            </button>
+            <button
+              type="button"
+              @click="setColorMode('custom')"
+              :class="[
+                'py-2 rounded-md text-sm font-semibold transition-colors',
+                selectedColorMode === 'custom'
+                  ? 'bg-surface text-primary-active shadow-sm'
+                  : 'text-text-secondary hover:bg-surface/70',
+              ]"
+            >
+              カスタム
+            </button>
+          </div>
+
+          <div
+            v-if="selectedColorMode === 'preset'"
+            class="grid grid-cols-6 gap-2"
+          >
+            <button
+              v-for="preset in presetColors"
+              :key="preset.label"
+              type="button"
+              :title="preset.label"
+              :aria-label="`${preset.label}を選択`"
+              @click="selectPresetColor(preset.value)"
+              :class="[
+                'relative flex h-10 w-10 items-center justify-center rounded-full border border-transparent transition-all',
+                formData.color.toLowerCase() === preset.value.toLowerCase()
+                  ? 'border-primary ring-2 ring-primary scale-105'
+                  : 'hover:border-border hover:ring-1 hover:ring-border',
+              ]"
+            >
+              <span
+                class="inline-block h-7 w-7 rounded-full border border-border"
+                :style="{ backgroundColor: preset.value }"
+              ></span>
+              <span
+                v-if="isPresetColorUsed(preset.value)"
+                class="absolute -right-0.5 -bottom-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-surface bg-text-primary text-[10px] font-bold leading-none text-surface"
+              >
+                ✓
+              </span>
+            </button>
+          </div>
+
+          <div v-else class="space-y-2">
+            <input
+              id="color"
+              v-model="formData.color"
+              type="color"
+              class="w-full h-10 border border-border rounded-md"
+            />
+          </div>
         </div>
 
         <div class="flex space-x-4">
@@ -105,7 +168,6 @@
 import { ref, computed, onMounted } from "vue";
 import type { Category } from "@/types/Category.type";
 import { useCategoryStore } from "@/stores/categoryStore";
-import { COLOR_TOKENS } from "@/constants/colorTokens";
 import TypeToggle from "@/components/TypeToggle.vue";
 import CategoryColorDot from "@/components/CategoryColorDot.vue";
 
@@ -114,6 +176,24 @@ const categoryStore = useCategoryStore();
 const loading = ref(false);
 const editingCategory = ref<Category | null>(null);
 const selectedType = ref<"income" | "expense">("expense");
+const selectedColorMode = ref<"preset" | "custom">("preset");
+
+const presetColors = [
+  { label: "赤", value: "#E36A6A" },
+  { label: "ピンク", value: "#D96AA7" },
+  { label: "オレンジ", value: "#E79A4E" },
+  { label: "黄色", value: "#D9BC4B" },
+  { label: "緑", value: "#4FAE7A" },
+  { label: "黄緑", value: "#9ABB4A" },
+  { label: "青", value: "#4A8FD9" },
+  { label: "水色", value: "#4CB8C8" },
+  { label: "紫", value: "#8B76D9" },
+  { label: "ブラウン", value: "#9A735C" },
+  { label: "ベージュ", value: "#C6A77B" },
+  { label: "グレー", value: "#8A949F" },
+] as const;
+
+const defaultPresetColor = presetColors[4].value;
 
 interface CategoryFormData {
   name: string;
@@ -124,21 +204,52 @@ interface CategoryFormData {
 const formData = ref<CategoryFormData>({
   name: "",
   type: "expense",
-  color: COLOR_TOKENS.primary,
+  color: defaultPresetColor,
 });
+
+const isPresetColor = (color: string): boolean => {
+  const normalized = color.toLowerCase();
+  return presetColors.some(
+    (preset) => preset.value.toLowerCase() === normalized,
+  );
+};
+
+const selectPresetColor = (color: string) => {
+  formData.value.color = color;
+};
+
+const setColorMode = (mode: "preset" | "custom") => {
+  selectedColorMode.value = mode;
+  if (mode === "preset" && !isPresetColor(formData.value.color)) {
+    formData.value.color = defaultPresetColor;
+  }
+};
 
 const filteredCategories = computed(() =>
   categoryStore.categories.filter((c) => c.type === selectedType.value),
 );
 
+const usedPresetColorSet = computed(() => {
+  return new Set(
+    filteredCategories.value
+      .map((category) => category.color.toLowerCase())
+      .filter((color) => isPresetColor(color)),
+  );
+});
+
+const isPresetColorUsed = (color: string): boolean => {
+  return usedPresetColorSet.value.has(color.toLowerCase());
+};
+
 const switchType = (type: "income" | "expense") => {
   selectedType.value = type;
   // タイプ切替時は編集をキャンセルしてフォームをリセット
   editingCategory.value = null;
+  selectedColorMode.value = "preset";
   formData.value = {
     name: "",
     type,
-    color: COLOR_TOKENS.primary,
+    color: defaultPresetColor,
   };
 };
 
@@ -149,14 +260,16 @@ const editCategory = (category: Category) => {
     type: category.type,
     color: category.color,
   };
+  selectedColorMode.value = isPresetColor(category.color) ? "preset" : "custom";
 };
 
 const cancelEdit = () => {
   editingCategory.value = null;
+  selectedColorMode.value = "preset";
   formData.value = {
     name: "",
     type: selectedType.value,
-    color: COLOR_TOKENS.primary,
+    color: defaultPresetColor,
   };
 };
 
@@ -192,8 +305,9 @@ const handleSubmit = async () => {
     formData.value = {
       name: "",
       type: selectedType.value,
-      color: COLOR_TOKENS.primary,
+      color: defaultPresetColor,
     };
+    selectedColorMode.value = "preset";
   } catch (error) {
     console.error("Error managing category:", error);
     alert("カテゴリの操作に失敗しました");
