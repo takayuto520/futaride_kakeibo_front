@@ -1,5 +1,21 @@
 <template>
   <div class="transaction-form p-6 max-w-4xl mx-auto">
+    <Transition
+      enter-active-class="transition-opacity duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-300"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showSuccessMessage"
+        class="fixed top-24 left-1/2 z-50 -translate-x-1/2 rounded-md bg-text-primary px-4 py-2 text-sm text-surface shadow-lg"
+      >
+        追加しました
+      </div>
+    </Transition>
+
     <div class="max-w-md mx-auto p-6 bg-surface rounded-lg shadow-md">
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <!-- タイプ -->
@@ -40,7 +56,7 @@
             class="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option
-              v-for="category in categories"
+              v-for="category in filteredCategories"
               :key="category.id"
               :value="category.id"
             >
@@ -106,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRouter } from "vue-router";
 import type { Transaction } from "@/types/Transaction.type";
 import { useTransactionStore } from "@/stores/transactionStore";
@@ -126,24 +142,50 @@ const transactionStore = useTransactionStore();
 const categoryStore = useCategoryStore();
 
 const loading = ref(false);
-const categories = computed(() => categoryStore.categories);
+const showSuccessMessage = ref(false);
 const dateInputRef = ref<HTMLInputElement | null>(null);
-
-const getDefaultCategoryId = (): number => {
-  return categories.value[0]?.id ?? 0;
-};
+let successMessageTimer: ReturnType<typeof setTimeout> | null = null;
 
 const formData = ref<TransactionFormState>({
   date: new Date().toLocaleDateString("sv-SE"), // YYYY-MM-DD
   type: "expense" as "income" | "expense",
   amount: "",
-  categoryId: getDefaultCategoryId(),
+  categoryId: 0,
   memo: "",
 });
+
+const filteredCategories = computed(() =>
+  categoryStore.categories.filter(
+    (category) => category.type === formData.value.type,
+  ),
+);
+
+const getDefaultCategoryId = (
+  type: "income" | "expense" = formData.value.type,
+): number => {
+  return (
+    categoryStore.categories.find((category) => category.type === type)?.id ?? 0
+  );
+};
+
+watch(
+  [() => formData.value.type, filteredCategories],
+  () => {
+    const existsInCurrentType = filteredCategories.value.some(
+      (category) => category.id === formData.value.categoryId,
+    );
+    if (!existsInCurrentType) {
+      formData.value.categoryId = getDefaultCategoryId(formData.value.type);
+    }
+  },
+  { immediate: true },
+);
 
 const handleSubmit = async () => {
   const amountText = formData.value.amount.trim();
   const amount = Number(amountText);
+  const selectedType = formData.value.type;
+  const selectedCategoryId = formData.value.categoryId;
 
   if (!/^\d+$/.test(amountText) || !Number.isFinite(amount) || amount <= 0) {
     alert("金額は1以上を入力してください");
@@ -166,14 +208,20 @@ const handleSubmit = async () => {
     // フォームリセット
     formData.value = {
       date: new Date().toLocaleDateString("sv-SE"),
-      type: "expense",
+      type: selectedType,
       amount: "",
-      categoryId: getDefaultCategoryId(),
+      categoryId: selectedCategoryId,
       memo: "",
     };
 
-    alert("取引が登録されました");
-    router.push("/");
+    showSuccessMessage.value = true;
+    if (successMessageTimer !== null) {
+      clearTimeout(successMessageTimer);
+    }
+    successMessageTimer = setTimeout(() => {
+      showSuccessMessage.value = false;
+      successMessageTimer = null;
+    }, 1000);
   } catch (error) {
     console.error("取引登録エラー:", error);
     alert("取引の登録に失敗しました");
@@ -205,10 +253,14 @@ const openDatePicker = () => {
 
 onMounted(async () => {
   await categoryStore.fetchCategories();
-  const firstCategory =
-    categories.value.length > 0 ? categories.value[0] : null;
-  if (firstCategory && formData.value.categoryId === 0) {
-    formData.value.categoryId = firstCategory.id;
+  if (formData.value.categoryId === 0) {
+    formData.value.categoryId = getDefaultCategoryId(formData.value.type);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (successMessageTimer !== null) {
+    clearTimeout(successMessageTimer);
   }
 });
 </script>

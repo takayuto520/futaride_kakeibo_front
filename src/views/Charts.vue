@@ -5,23 +5,29 @@
       <h2 class="text-xl font-semibold mb-4">支出カテゴリ別</h2>
       <div class="flex justify-center">
         <div class="w-64 h-64 relative">
-          <svg viewBox="0 0 100 100" class="w-full h-full text-border">
-            <g v-for="(slice, index) in pieSlices" :key="index">
+          <svg
+            viewBox="0 0 100 100"
+            class="w-full h-full text-border overflow-visible"
+          >
+            <g v-for="(slice, index) in pieSlices" :key="`path-${index}`">
               <path
                 :d="slice.path"
                 :fill="slice.color"
                 stroke="currentColor"
                 stroke-width="0.5"
               />
+            </g>
+            <g v-for="(slice, index) in pieSlices" :key="`label-${index}`">
               <text
+                v-if="slice.showLabel"
                 :x="slice.labelX"
                 :y="slice.labelY"
                 text-anchor="middle"
                 dominant-baseline="middle"
-                class="text-xs font-semibold text-text-primary"
-                fill="currentColor"
+                class="text-[8px]"
+                fill="#FFFFFF"
               >
-                {{ slice.percentage }}%
+                {{ slice.label }}
               </text>
             </g>
           </svg>
@@ -58,7 +64,6 @@
 import { computed, onMounted } from "vue";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useCategoryStore } from "@/stores/categoryStore";
-import { COLOR_TOKENS } from "@/constants/colorTokens";
 
 const transactionStore = useTransactionStore();
 const categoryStore = useCategoryStore();
@@ -80,23 +85,17 @@ const categoryTotals = computed(() => {
 });
 
 const pieSlices = computed(() => {
+  const MIN_LABEL_ANGLE = 24;
   const totalExpense = categoryTotals.value.reduce(
     (sum, cat) => sum + cat.total,
     0,
   );
   if (totalExpense === 0) return [];
 
-  let cumulativeAngle = 0;
-  const colors = [
-    COLOR_TOKENS.primary,
-    COLOR_TOKENS.secondary,
-    COLOR_TOKENS.accent,
-    COLOR_TOKENS.primaryHover,
-    COLOR_TOKENS.secondaryLight,
-    COLOR_TOKENS.accentLight,
-  ];
+  // 12時方向から開始するため -90 度を初期角度にする
+  let cumulativeAngle = -90;
 
-  return categoryTotals.value.map((category, index) => {
+  return categoryTotals.value.map((category) => {
     const angle = (category.total / totalExpense) * 360;
     const startAngle = cumulativeAngle;
     const endAngle = cumulativeAngle + angle;
@@ -122,8 +121,9 @@ const pieSlices = computed(() => {
 
     return {
       path,
-      color: colors[index % colors.length],
-      percentage: Math.round((category.total / totalExpense) * 100),
+      color: category.color,
+      label: category.name,
+      showLabel: angle >= MIN_LABEL_ANGLE,
       labelX,
       labelY,
     };
@@ -137,5 +137,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 必要に応じてスタイル追加 */
+svg {
+  overflow: visible;
+}
 </style>
