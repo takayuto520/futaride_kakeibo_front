@@ -36,6 +36,35 @@ src/
 └ main.ts         # エントリーポイント
 ```
 
+### 1.5 カラーテーマ
+
+アプリ全体で使用するカラーパレットを定義し、保守性と拡張性を高める。
+
+- **Primary**: 明るい緑系 (#34D399) - メインアクション
+- **Primary-light**: 緑系 (#10B981) - ホバー状態
+- **Primary-active**: 濃い緑系 (#059669) - 選択/押下状態
+- **Secondary**: モノトーン系 (#4B5563) - 補助テキスト
+- **Secondary-light**: 薄いモノトーン系 (#F3F4F6) - 軽い背景
+- **Accent / Error**: 赤系 (#DC2626) - エラー、危険操作
+- **Balance-positive**: 水色系 (#0EA5E9) - 収支プラス文字
+- **Balance-negative**: 赤系 (#DC2626) - 収支マイナス文字
+
+グレースケール:
+
+- **Gray-light**: 薄いグレー (#F3F4F6) - 背景、カード
+- **Gray**: 中間グレー (#6B7280) - 文字、アイコン
+- **Gray-dark**: 濃いグレー (#374151) - 強調文字、枠線
+
+ナビゲーション状態色:
+
+- **Nav-default**: #F0FDF4
+- **Nav-hover**: #047857
+- **Nav-active**: #059669
+- **Nav-active-text**: #FFFFFF
+- **Nav-inactive**: #9CA3AF
+
+Tailwind CSS の設定ファイルでカスタムカラーを定義し、セマンティックなクラス名を使用。
+
 ## 2. 機能要件
 
 ### 2.1 コア機能
@@ -64,26 +93,62 @@ src/
 | カテゴリ管理 | カテゴリの追加・編集                 | CategoryManager.vue |
 | グラフ       | 支出カテゴリ別円グラフと合計金額一覧 | Charts.vue          |
 
+### 3.1.1 ナビゲーション
+
+- 画面上部にタブメニューを配置
+- ナビゲーションバーは画面上部に固定表示
+- メニュー項目: ホーム, 入力, グラフ, カテゴリ
+- 各メニューにアイコンを表示
+  - ホーム: カレンダー
+  - 入力: ペン
+  - グラフ: 円グラフ
+  - カテゴリ: 歯車
+- 選択中のタブはハイライト表示
+- ホバー時は通常時と異なる背景色・文字色・影を適用
+- メニューは常に表示
+
 ### 3.2 ホーム画面 (Home.vue)
 
 - 月次収支サマリー
 - カレンダー表示（日付ごとの支出額表示）
+- 年プルダウン・月プルダウンで任意年月を選択
+- 選択月以外の日付は薄い文字色で表示
 - カレンダー表示している月の取引履歴（全件表示、スクロール可能）
 
 ### 3.3 記録入力画面 (TransactionForm.vue)
 
-- フォーム項目:
-  - 日付 (DatePicker)
-  - タイプ (収入/支出, RadioButton)
-  - 金額 (NumberInput)
-  - カテゴリ (Select)
-  - メモ (TextArea)
-- バリデーション: 金額必須、金額 > 0
+- フォーム項目（上から順）:
+  - タイプ（収入/支出、2択トグル）
+  - 金額（テキスト入力、数字キーボード表示）
+  - カテゴリ（Select）
+  - メモ（TextArea）
+  - 日付（DatePicker）
+- 入力仕様:
+  - 金額の初期値は空文字（ブランク）
+  - カテゴリは選択中タイプ（収入/支出）に一致する項目のみ表示
+  - カテゴリ初期値は選択中タイプ内の先頭項目
+  - カテゴリの「選択してください」プレースホルダーは表示しない
+  - 日付入力エリアは全体タップで日付ピッカーを開ける
+  - 登録成功後は、直前に選択していたタイプ・カテゴリを維持する
+- ボタン配置:
+  - 左: キャンセル
+  - 右: 登録（太字）
+- 成功時フィードバック:
+  - 画面内ポップアップ（トースト）で「追加しました」を表示
+  - 約1秒後に自動でフェードアウト
+- バリデーション: 金額必須、半角数字のみ、金額 > 0
 
 ### 3.4 グラフ画面 (Charts.vue)
 
 - 支出カテゴリ別円グラフ
 - カテゴリごとの合計金額一覧
+- 円グラフ仕様:
+  - 各スライス色はカテゴリ設定色 (`category.color`) を使用
+  - 12時方向を始点に時計回りで描画
+  - ラベルはカテゴリ名を表示
+  - ラベルは白色・小サイズ表示
+  - 扇形が狭いカテゴリはラベルを非表示
+  - ラベルはスライス境界をまたいで重なって表示可能（見切れ防止）
 
 ## 4. データモデル
 
@@ -136,6 +201,9 @@ interface Transaction {
 | PUT      | /api/transactions/:id | 取引更新         |
 | DELETE   | /api/transactions/:id | 取引削除         |
 | GET      | /api/categories       | カテゴリ一覧取得 |
+| POST     | /api/categories       | カテゴリ新規作成 |
+| PUT      | /api/categories/:id   | カテゴリ更新     |
+| DELETE   | /api/categories/:id   | カテゴリ削除     |
 
 ### 5.2 レスポンス例
 
@@ -161,6 +229,51 @@ interface Transaction {
 }
 ```
 
+#### GET /api/categories
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "食費",
+      "type": "expense",
+      "color": "#EF4444"
+    },
+    {
+      "id": 2,
+      "name": "日用品",
+      "type": "expense",
+      "color": "#10B981"
+    },
+    {
+      "id": 3,
+      "name": "交通費",
+      "type": "expense",
+      "color": "#3B82F6"
+    },
+    {
+      "id": 4,
+      "name": "住居費",
+      "type": "expense",
+      "color": "#8B5CF6"
+    },
+    {
+      "id": 5,
+      "name": "公共料金",
+      "type": "expense",
+      "color": "#F59E0B"
+    },
+    {
+      "id": 6,
+      "name": "交際費",
+      "type": "expense",
+      "color": "#EC4899"
+    }
+  ]
+}
+```
+
 ## 6. 状態管理設計 (Pinia)
 
 ### 6.1 useUserStore
@@ -173,10 +286,53 @@ interface Transaction {
 - 状態: transactions, loading, error
 - アクション: fetchTransactions, addTransaction, updateTransaction, deleteTransaction
 
+#### 6.2.1 API呼び出し最適化（キャッシュ）
+
+- 目的: 画面再訪時の不要なAPI呼び出しを抑制し、通信量を削減する
+- 方針:
+  - `fetchTransactions` はTTLベースのキャッシュ判定を行う
+  - 既定TTLは5分（`DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000`）
+  - キャッシュ有効期間内は再取得せず、Store内データを利用する
+  - `force: true` 指定時はTTLを無視して強制再取得する
+- 重複呼び出し抑止:
+  - 取得中のPromiseを共有し、同時呼び出し時のAPIリクエストを1回に集約する
+- 整合性:
+  - 追加/更新/削除でStoreを更新した後は、キャッシュ時刻を更新して最新状態として扱う
+
+#### 6.2.2 取引登録フロー（入力画面連携）
+
+- 対象画面: TransactionForm.vue
+- フロー:
+  1. 入力画面で日付・タイプ・金額・カテゴリ・メモを入力して送信
+  2. 画面から `useTransactionStore.addTransaction()` を呼び出し
+  3. `addTransaction` 内で `POST /api/transactions` を実行
+  4. APIレスポンスで返却された取引データをStoreの `transactions` に追加
+  5. 追加後、ホーム画面や取引一覧画面はStoreの更新を自動反映
+
+- エラーハンドリング:
+  - APIエラー時はStoreの `error` を更新
+  - 呼び出し元画面へ例外を再送出し、入力画面でエラーメッセージを表示
+
+- 日付項目の扱い:
+  - APIレスポンスの日付文字列（`date`, `createdAt`）はStoreで `Date` 型へ正規化して保持する
+
 ### 6.3 useCategoryStore
 
 - 状態: categories
-- アクション: fetchCategories, addCategory
+- アクション: fetchCategories, addCategory, updateCategory, deleteCategory
+
+#### 6.3.1 API呼び出し最適化（キャッシュ）
+
+- 目的: 画面遷移や再マウント時のカテゴリ再取得を最小化する
+- 方針:
+  - `fetchCategories` はTTLベースのキャッシュ判定を行う
+  - 既定TTLは10分（`DEFAULT_CACHE_TTL_MS = 10 * 60 * 1000`）
+  - キャッシュ有効期間内は再取得せず、Store内データを利用する
+  - `force: true` 指定時はTTLを無視して強制再取得する
+- 重複呼び出し抑止:
+  - 取得中のPromiseを共有し、同時呼び出し時のAPIリクエストを1回に集約する
+- 整合性:
+  - 追加/更新/削除でStoreを更新した後は、キャッシュ時刻を更新して最新状態として扱う
 
 ## 7. テスト設計
 

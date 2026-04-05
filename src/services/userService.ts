@@ -1,6 +1,6 @@
 import type { User, ApiResponse } from "@/types/User.type";
 
-const API_BASE_URL = "https://api.example.com";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * ユーザー一覧を取得する
