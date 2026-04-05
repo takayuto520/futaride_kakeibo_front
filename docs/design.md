@@ -286,7 +286,20 @@ interface Transaction {
 - 状態: transactions, loading, error
 - アクション: fetchTransactions, addTransaction, updateTransaction, deleteTransaction
 
-#### 6.2.1 取引登録フロー（入力画面連携）
+#### 6.2.1 API呼び出し最適化（キャッシュ）
+
+- 目的: 画面再訪時の不要なAPI呼び出しを抑制し、通信量を削減する
+- 方針:
+  - `fetchTransactions` はTTLベースのキャッシュ判定を行う
+  - 既定TTLは5分（`DEFAULT_CACHE_TTL_MS = 5 * 60 * 1000`）
+  - キャッシュ有効期間内は再取得せず、Store内データを利用する
+  - `force: true` 指定時はTTLを無視して強制再取得する
+- 重複呼び出し抑止:
+  - 取得中のPromiseを共有し、同時呼び出し時のAPIリクエストを1回に集約する
+- 整合性:
+  - 追加/更新/削除でStoreを更新した後は、キャッシュ時刻を更新して最新状態として扱う
+
+#### 6.2.2 取引登録フロー（入力画面連携）
 
 - 対象画面: TransactionForm.vue
 - フロー:
@@ -307,6 +320,19 @@ interface Transaction {
 
 - 状態: categories
 - アクション: fetchCategories, addCategory, updateCategory, deleteCategory
+
+#### 6.3.1 API呼び出し最適化（キャッシュ）
+
+- 目的: 画面遷移や再マウント時のカテゴリ再取得を最小化する
+- 方針:
+  - `fetchCategories` はTTLベースのキャッシュ判定を行う
+  - 既定TTLは10分（`DEFAULT_CACHE_TTL_MS = 10 * 60 * 1000`）
+  - キャッシュ有効期間内は再取得せず、Store内データを利用する
+  - `force: true` 指定時はTTLを無視して強制再取得する
+- 重複呼び出し抑止:
+  - 取得中のPromiseを共有し、同時呼び出し時のAPIリクエストを1回に集約する
+- 整合性:
+  - 追加/更新/削除でStoreを更新した後は、キャッシュ時刻を更新して最新状態として扱う
 
 ## 7. テスト設計
 
